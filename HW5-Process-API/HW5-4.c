@@ -14,12 +14,31 @@ int main(int argc, char *argv[])
     exit(1);
   } else if (rc == 0) {    // child process
     printf("I am child (PID %d).\n", getpid());
-    char *arg_list[2];
-    arg_list[0] = "/bin/ls";
-    arg_list[1] = "";
-    arg_list[2] = '\0';
-    // execl(arg_list[0], arg_list[1], arg_list[2]);
-    execl(arg_list[0], arg_list[1], (char *) NULL);
+
+    // char *arg_list[2];
+    // arg_list[0] = "/bin/ls";
+    // arg_list[1] = "";
+    // arg_list[2] = '\0';
+    // execl(arg_list[0], arg_list[1], (char *) NULL);  // Works
+
+    // execl("/bin/ls", "", (char *) NULL);  // Works
+
+    // execle("/bin/ls", "", (char *) NULL, "~/");  // Doesn't seem to invoke ls but compiles.
+
+    // execlp("/bin/ls", "", (char *) NULL);  // Works
+
+    // char *arg_list[2];
+    // arg_list[0] = "/bin/ls";
+    // arg_list[1] = ".";
+    // arg_list[2] = '\0';
+    // execv(arg_list[0], arg_list); // Works
+
+    // char *arg_list[2];
+    // arg_list[0] = "/bin/ls";
+    // arg_list[1] = ".";
+    // arg_list[2] = '\0';
+    // execvp(arg_list[0], arg_list); // Works
+
   } else {                // parent process
     // wait(NULL);
     printf("I am parent (PID %d).\n", getpid());
@@ -27,3 +46,6 @@ int main(int argc, char *argv[])
 
   return 0;
 }
+
+
+// https://stackoverflow.com/questions/4204915/please-explain-the-exec-function-and-its-family

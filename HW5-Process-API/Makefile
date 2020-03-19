@@ -1,6 +1,6 @@
 CFLAGS=-Wall -g
 
-all: HW5-4
+all: HW5-6
 
 clean:
-	rm -f HW5-4
+	rm -f HW5-6
