@@ -1,6 +1,6 @@
 CFLAGS=-Wall -g
 
-all: memory-user2
+all: memory-user3
 
 clean:
-	rm -f memory-user2
+	rm -f memory-user3
