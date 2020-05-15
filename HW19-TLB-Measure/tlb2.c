@@ -43,18 +43,20 @@ int main(int argc, char *argv[])
   debug("num_trials: %d", num_trials);
 
   int ints_per_page = PAGESIZE / sizeof(int);
+  int total_int_count = num_pages * ints_per_page;
   // debug("sizeof(int): %lu", sizeof(int));
   debug("ints_per_page: %d", ints_per_page);
-  debug("num_pages * ints_per_page: %d", num_pages * ints_per_page);
+  debug("total_int_count: %d", total_int_count);
 
-  int *int_array = malloc(num_pages * ints_per_page * sizeof(int));
+  int *int_array = malloc(total_int_count * sizeof(int));
   check_mem(int_array);
 
   struct timespec ts, ts2;
-  long unsigned time_spent;
+  long unsigned avg_time_spent;
   int j;
 
-  for (int i = 0; i < num_pages * ints_per_page; i+=ints_per_page)
+  // loops through int_array and touches first int of each page.
+  for (int i = 0; i < total_int_count; i+=ints_per_page)
   {
     clock_gettime(CLOCK_MONOTONIC_RAW, &ts);
     for (j = 0; j < num_trials; j+=1)
@@ -64,9 +66,9 @@ int main(int argc, char *argv[])
       int_array[i] += 1;
 
     }
-    time_spent = diff_calc(&ts, &ts2) / num_trials;
-    printf("%lu\n", time_spent);
-    debug("a[%d]: %d\t\tTime spent: %lu ns", i, int_array[i], time_spent);
+    avg_time_spent = diff_calc(&ts, &ts2) / num_trials;
+    printf("%lu\n", avg_time_spent);
+    debug("a[%d]: %d\t\tTime spent: %lu ns", i, int_array[i], avg_time_spent);
   }
 
   free(int_array);
