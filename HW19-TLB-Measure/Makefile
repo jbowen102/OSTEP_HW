@@ -1,6 +1,6 @@
-CFLAGS=-Wall -g -DNDEBUG
+CFLAGS=-Wall -g -DNDEBUG -O0
 
-all: tlb2
+all: tlb3
 
 clean:
-	rm -f tlb2
+	rm -f tlb3

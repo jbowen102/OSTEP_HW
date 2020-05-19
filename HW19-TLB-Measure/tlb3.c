@@ -1,5 +1,7 @@
+#define _GNU_SOURCE
 #include <stdlib.h>
 #include <stdio.h>
+#include <sched.h>
 #include <time.h>
 #include "dbg.h"
 
@@ -35,6 +37,13 @@ int main(int argc, char *argv[])
 
   // int rc = print_clock_precision(CLOCK_MONOTONIC_RAW);
   // check(rc == 0, "print_clock_precision failed.");
+  // int mypid = getpid();
+
+  // pin thread to CPU 0
+  cpu_set_t proc_mask;
+  CPU_ZERO(&proc_mask);
+  CPU_SET(0, &proc_mask);
+  sched_setaffinity(0, sizeof(cpu_set_t), &proc_mask);
 
   int num_pages = atoi(argv[1]);
   int num_trials = atoi(argv[2]);
@@ -48,18 +57,19 @@ int main(int argc, char *argv[])
   debug("ints_per_page: %d", ints_per_page);
   debug("total_int_count: %d", total_int_count);
 
-  int *int_array = malloc(total_int_count * sizeof(int));
+  int *int_array = calloc(total_int_count, sizeof(int));
   check_mem(int_array);
 
-  struct timespec ts, ts2;
-  long unsigned avg_time_spent;
+  int tot_mem_accesses = num_pages * num_trials;
   int j;
 
-  // loops through int_array and touches first int of each page.
-  for (int i = 0; i < total_int_count; i+=ints_per_page)
+  struct timespec ts, ts2;
+  clock_gettime(CLOCK_MONOTONIC_RAW, &ts);
+
+  for (j = 0; j < num_trials; j+=1)
   {
-    clock_gettime(CLOCK_MONOTONIC_RAW, &ts);
-    for (j = 0; j < num_trials; j+=1)
+    // loops through int_array and touches first int of each page.
+    for (int i = 0; i < total_int_count; i+=ints_per_page)
     {
       // debug("Value of ts seconds in main loop: %lu", ts.tv_sec);
       // debug("Value of ts nseconds in main loop: %lu", ts.tv_nsec);
@@ -67,18 +77,19 @@ int main(int argc, char *argv[])
       // single_time_spent = diff_calc(&ts, &ts2);
       // printf("%lu\n", time_spent);
 
-      printf("%d\n", int_array[i]);
+      // printf("%d\n", int_array[i]);
       // asm(""); // trying to stop compiler optimization from ignoring loop.
       // debug("%d", int_array[i]);
-
     }
-    avg_time_spent = diff_calc(&ts, &ts2) / num_trials;
-    printf("%lu\n", avg_time_spent);
-    debug("a[%d]: %d\t\tTime spent: %lu ns", i, int_array[i], avg_time_spent);
   }
 
+  long unsigned avg_time_spent = diff_calc(&ts, &ts2) / tot_mem_accesses;
+  // printf("Avg time spent per page for %d pages: %lu ns\n", num_pages, avg_time_spent);
+  // printf("%lu\n", avg_time_spent);
+  // debug("a[%d]: %d\t\tTime spent: %lu ns", i, int_array[i], avg_time_spent);
+
   free(int_array);
-  return 0;
+  return avg_time_spent;
 error:
   if (int_array) free(int_array);
   return -1;

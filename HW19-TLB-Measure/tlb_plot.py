@@ -1,8 +1,8 @@
 import matplotlib.pyplot as plt
 import subprocess
 
-trials = 100
-page_max_exp = 10
+trials = 1
+page_max_exp = 12
 
 run_avg_list = []
 
@@ -21,9 +21,15 @@ for page_count_exp in range(1, page_max_exp+1):
     output_sum = 0
     # print("\n----%s-----\n" % page_count)
     with open(filename, 'r') as output_file:
+        line_no = 0;
         for line in output_file:
             # print("line: %s" % line)
-            output_sum += int(line)
+            if line_no % 2 == 1:
+                output_sum += int(line)
+            else:
+                pass # ignore printed output from the mem access
+
+            line_no += 1
 
     avg_runtime = output_sum / page_count
     run_avg_dict[page_count] = avg_runtime
